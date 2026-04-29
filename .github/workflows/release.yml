@@ -1,0 +1,81 @@
+name: Release Plugin
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate plugin structure
+        run: |
+          cd ${{ github.event.repository.name }}
+
+          # Check required directories and files exist
+          for path in ".claude-plugin/plugin.json" "commands" "skills"; do
+            if [ ! -e "$path" ]; then
+              echo "ERROR: Missing required path: $path"
+              exit 1
+            fi
+          done
+
+          # Validate plugin.json
+          python3 -c "
+          import json, sys
+          with open('.claude-plugin/plugin.json') as f:
+              p = json.load(f)
+          for field in ['name', 'version', 'description']:
+              if field not in p:
+                  print(f'ERROR: plugin.json missing field: {field}')
+                  sys.exit(1)
+          name = p['name']
+          if not all(c.islower() or c.isdigit() or c in '-_' for c in name):
+              print(f'ERROR: plugin name \"{name}\" is not kebab-case')
+              sys.exit(1)
+          print(f'plugin.json valid: {name} v{p[\"version\"]}')
+          "
+
+          # Validate skill directories each have SKILL.md
+          for skill in skills/*; do
+            if [ -d "$skill" ] && [ ! -f "$skill/SKILL.md" ]; then
+              echo "ERROR: $skill/ is missing SKILL.md"
+              exit 1
+            fi
+          done
+
+          # Validate command files have description: and nothing forbidden
+          for cmd in commands/*.md; do
+            if ! grep -q '^description:' "$cmd"; then
+              echo "ERROR: $cmd missing frontmatter description"
+              exit 1
+            fi
+            if grep -qE '^(name:|tools:|allowed-tools:)' "$cmd"; then
+              echo "ERROR: $cmd contains forbidden field (name/tools/allowed-tools)"
+              exit 1
+            fi
+          done
+
+          echo "Structure validation passed"
+
+  build:
+    runs-on: ubuntu-latest
+    needs: validate
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build plugin zip
+        run: |
+          cd ${{ github.event.repository.name }}
+          VERSION=${GITHUB_REF#refs/tags/v}
+          zip -r ../kate-career-coach-$VERSION.zip . -x ".git/*" "node_modules/*"
+          echo "Built: kate-career-coach-$VERSION.zip"
+
+      - name: Upload to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: kate-career-coach-*.zip
+          generate_release_notes: true
