@@ -2,7 +2,7 @@
 description: Run a structured fit assessment on a job description using Kate's methodology. Produces a Fit Tier (Target / Stretch / Reach), top fit signals, and key gaps. Required before resume optimization or interview prep.
 ---
 
-Load the kate-coach skill and run the fit assessment flow as defined in `references/flows.md`.
+Run the **Fit Assessment Flow** in `skills/kate-coach/references/flows.md`.
 
 Before starting, collect:
 - The job description (pasted text or uploaded file)

@@ -2,7 +2,7 @@
 description: Generate a structured interview prep brief for an upcoming interview. Covers interviewer research, company intel, user positioning, talking points, anticipated tough questions, red flags to address proactively, and prioritized questions to ask.
 ---
 
-Load the kate-coach skill and run the pre-interview prep flow as defined in `references/flows.md`.
+Run the **Pre-Interview Prep Flow** in `skills/kate-coach/references/flows.md`.
 
 Before starting, collect:
 - Company name and role

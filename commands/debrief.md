@@ -2,7 +2,7 @@
 description: Run a structured post-interview debrief. Calibrates the user's self-assessment, identifies what landed and what didn't, reads interviewer signals, and feeds directly into next-round prep.
 ---
 
-Load the kate-coach skill and run the post-interview debrief flow as defined in `references/flows.md`.
+Run the **Post-Interview Debrief Flow** in `skills/kate-coach/references/flows.md`.
 
 Before starting, collect:
 - Company name, role, interviewer name, interview stage, and date

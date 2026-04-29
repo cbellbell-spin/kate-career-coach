@@ -1,12 +1,10 @@
 {
   "name": "kate-career-coach",
-  "version": "0.4.2",
-  "description": "Kate, a senior career coach for executive job searches. Structured workflows for fit assessment, interview prep, resume optimization, post-interview debrief, and weekly monitoring of target companies and open roles.",
+  "version": "0.5.0",
+  "description": "Kate, a senior career coach for executive job searches. Structured workflows for fit assessment (CMF + Role Qualification + Personal Fit), Mnookin Two-Pager profile, interview prep, job mission + OKRs, resume optimization, post-interview debrief, and weekly monitoring of target companies and open roles.",
   "author": {
     "name": "Chris Bell"
   },
-  "homepage": "https://chrisjbell.dev",
-  "license": "Apache-2.0",
   "keywords": [
     "career",
     "coaching",

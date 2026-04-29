@@ -43,11 +43,40 @@ Geography:
 Work model:
 Other:
 
+MNOOKIN PROFILE:
+[Complete / Partial / None — populated after user runs "Build My Profile"]
+
 TRANSCRIPT METHOD:
 [Granola (automatic) / Manual paste / File upload]
 
-RESUME PREFERENCES:
-Preferred format confirmed: [Yes / Not yet]
-Format notes: [e.g., single page, Arial 10pt body, no objective, reverse chronological — populated when user confirms a format]
-Experience year counts: [Omit (default for 15+ years) / Include — confirmed YYYY-MM-DD]
-Graduation dates: [Omit if 15+ years old (default) / Include — confirmed YYYY-MM-DD]
+---
+
+## Mnookin Profile (Complete)
+*Populated when user runs "Build My Profile". Grounds all Personal Fit assessments.*
+
+WHAT YOU LOVE DOING:
+[Specific — not generic]
+
+WHAT YOU HATE DOING:
+[Specific — not generic]
+
+MUST-HAVES IN A JOB:
+[Non-negotiables — specific]
+
+MUST-NOTS IN A JOB:
+[Dealbreakers — specific]
+
+SHORT-TERM CAREER GOAL:
+[1-2 year outcome — specific]
+
+LONG-TERM CAREER GOAL:
+[3-5 year outcome — specific]
+
+CORE STRENGTHS:
+[How others would describe you — specific]
+
+KNOWN WEAKNESSES / GROWTH EDGES:
+[Known weaknesses — specific]
+
+LAST UPDATED:
+[YYYY-MM-DD]
