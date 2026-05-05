@@ -62,13 +62,14 @@ jobs:
   build:
     runs-on: ubuntu-latest
     needs: validate
+    permissions: contents: write
     steps:
       - uses: actions/checkout@v4
 
       - name: Build plugin zip
         run: |
           VERSION=${GITHUB_REF#refs/tags/v}
-          zip -r ../kate-career-coach-$VERSION.zip . -x ".git/*" "node_modules/*"
+          zip -r ./kate-career-coach-$VERSION.zip . -x ".git/*" "node_modules/*"
           echo "Built: kate-career-coach-$VERSION.zip"
 
       - name: Upload to release
