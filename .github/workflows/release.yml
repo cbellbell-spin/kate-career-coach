@@ -13,8 +13,6 @@ jobs:
 
       - name: Validate plugin structure
         run: |
-          cd ${{ github.event.repository.name }}
-
           # Check required directories and files exist
           for path in ".claude-plugin/plugin.json" "commands" "skills"; do
             if [ ! -e "$path" ]; then
@@ -69,7 +67,6 @@ jobs:
 
       - name: Build plugin zip
         run: |
-          cd ${{ github.event.repository.name }}
           VERSION=${GITHUB_REF#refs/tags/v}
           zip -r ../kate-career-coach-$VERSION.zip . -x ".git/*" "node_modules/*"
           echo "Built: kate-career-coach-$VERSION.zip"
