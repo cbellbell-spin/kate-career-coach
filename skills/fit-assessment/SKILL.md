@@ -2,7 +2,7 @@
 name: fit-assessment
 description: >
   Run a structured fit assessment on a job description using Kate's methodology. Produces
-  a Fit Tier (Target / Stretch / Reach), top fit signals, and key gaps. Required before
+  a Fit Tier (Strong Fit / Positioning Play / Uphill Battle), top fit signals, and key gaps. Required before
   resume optimization or interview prep. Trigger phrases: "fit assessment", "evaluate this role",
   "is this a good fit", "assess this job", "assess this JD", "how do I stack up", "should I apply",
   "is this a match", "rate this role", "look at this job description".

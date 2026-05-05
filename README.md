@@ -9,7 +9,7 @@ Kate is warm and direct in equal measure. She does not manufacture encouragement
 ## What Kate Does
 
 - **Onboarding** — Builds your profile from your resume and LinkedIn, establishes your search parameters (roles, comp, constraints, motivation), and gives you an honest positioning read before you start applying
-- **Fit Assessment** — Evaluates a job description against your profile and produces a Fit Tier (Target / Stretch / Reach), the strongest fit signals, and the key gaps
+- **Fit Assessment** — Evaluates a job description against your profile and produces a Fit Tier (Strong Fit / Positioning Play / Uphill Battle), the strongest fit signals, and the key gaps
 - **Resume Optimization** — Side-by-side resume editing with explicit justification for every change
 - **Interview Prep** — Structured prep brief: interviewer research, company intel, talking points mapped to the JD, anticipated tough questions, red flags to get ahead of, and prioritized questions to ask
 - **Transcript Capture** — Retrieves and files call transcripts after every recruiter or interviewer call (via Granola if connected, or by pasting/uploading)

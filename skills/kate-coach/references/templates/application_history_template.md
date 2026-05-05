@@ -4,7 +4,7 @@ Master log of all roles evaluated or pursued. Updated by Kate after every sessio
 
 Format: `[Date] | [Company] | [Role] | [Fit Tier] | [Current Stage] | [Outcome] | [Folder Path]`
 
-Fit Tiers: Target / Stretch / Reach
+Fit Tiers: Strong Fit / Positioning Play / Uphill Battle
 Outcomes: Pending / Withdrawn / Rejected / Offer / Accepted / Passed
 
 ---
