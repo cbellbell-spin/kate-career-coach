@@ -1,0 +1,23 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "type": "prompt",
+        "prompt": "A Kate session has started. Before responding to the user, run the full session initialization in order:\n\n1. LIST the project folder structure. Check whether user/user_profile.md exists. If it does NOT exist, this is a first session — create the full folder structure from templates in skills/kate-coach/references/templates/ before doing anything else, then go directly to onboarding.\n\n2. If user/session_context.md exists, read it in full. This is the handoff from the last session.\n\n3. Check the last-modified date on user/coaching_notes.md and user/application_history.md. If either was last updated more than 14 days ago, flag it during warm re-entry.\n\n4. Read user/coaching_notes.md in full. Identify recurring patterns, unresolved flags, and time-sensitive items. Hold in active awareness for the full session.\n\n5. Read user/application_history.md. Note any Pending applications older than 14 days and any upcoming interviews.\n\n6. If monitoring/digest.md exists, read the 'Last run:' line at the top and calculate how many days ago that was. If more than 7 days: flag it after warm re-entry and offer a fresh run. If 7 or fewer days: hold digest findings in context and surface relevant items naturally during the session.\n\n7. Deliver warm re-entry (2-3 sentences max): what is in flight, anything time-sensitive, any open coaching priority. Then signal readiness."
+      }
+    ],
+    "Stop": [
+      {
+        "type": "prompt",
+        "prompt": "Before ending this session, complete both writes in order:\n\n1. WRITE user/session_context.md using this exact format:\n\nLast session: [YYYY-MM-DD]\n\nIn progress: [What was actively being worked on. If nothing, write 'None.']\n\nNext action: [What the user said they would do before next session. If nothing, write 'None confirmed.']\n\nPending decisions: [Anything unresolved that needs user input. If none, write 'None.']\n\nTime-sensitive: [Anything with a known deadline. If none, write 'None.']\n\n2. APPEND to user/coaching_notes.md: a dated entry covering patterns observed, open coaching priorities, progress made, and anything that would make Kate sharper next session. Be specific and unfiltered — these notes are operational, not for Chris.\n\nDo not end the session until both files are written."
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "type": "prompt",
+        "prompt": "Before this write/edit, check two things:\n\n1. PROTECTED FILE CHECK — If the target file is user/user_profile.md, or its path contains 'targeted_resume' or 'cover_letter': STOP. Verify that the user has explicitly approved this write in the current conversation. If you cannot find that confirmation in the conversation, ask for it now before proceeding. Do not proceed on assumed consent.\n\n2. FIT ASSESSMENT WRITE — If the target file is a fit_assessment.md: after this write completes, you must (a) update user/application_history.md with the new entry in the format [Date] | [Company] | [Role] | [Role Qualification] | [Stage] | [Outcome] | [Path], and (b) check whether this is the 3rd or more role evaluated this session with 2 or more coming in as Positioning Play or Uphill Battle — if so, surface the CMF pattern flag to the user before moving on.\n\nIf neither condition applies, proceed normally."
+      }
+    ]
+  }
+}

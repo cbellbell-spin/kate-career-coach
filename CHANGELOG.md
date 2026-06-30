@@ -2,6 +2,29 @@
 
 ---
 
+## v0.6.0 — 2026-06-30
+
+### Hooks — Programmatic enforcement of critical session behaviors
+
+Added `hooks/hooks.json` with three hooks that enforce behaviors previously relying on text instructions alone. These replace the highest-risk text-only patterns identified in an audit of the plugin.
+
+**SessionStart hook (new)**
+Fires at the beginning of every session and injects the full 7-step session initialization sequence as a guaranteed prompt before Kate responds to the user. Enforces: folder structure check (first-session detection), session_context.md read, file freshness checks on coaching_notes.md and application_history.md, monitoring digest staleness calculation, application history review, and warm re-entry. Previously these steps could be skipped if the user opened a session with a direct task request.
+
+**Stop hook (new)**
+Fires when the session ends and injects a blocking prompt requiring Kate to write both session_context.md and append to coaching_notes.md before the session closes. Uses the exact template format specified in the session close protocol. Previously, if a session ended abruptly or Kate drifted through a long session, the context handoff was silently lost.
+
+**PreToolUse Write/Edit hook (new)**
+Fires before every Write or Edit tool call and enforces two rules:
+- *Protected file check*: blocks writes to user/user_profile.md, targeted resumes, and cover letters without explicit user confirmation found in the conversation
+- *Fit assessment downstream actions*: when a fit_assessment.md is being written, injects a reminder to update application_history.md and check the CMF pattern trigger rule (3+ roles evaluated, 2+ Positioning Play or Uphill Battle)
+
+### What changed
+- `hooks/hooks.json` — new file
+- `.claude-plugin/plugin.json` — version 0.5.0 → 0.6.0
+
+---
+
 ## v0.5.0 — 2026-04-29
 
 ### Fit Assessment Architecture — Three-Tier Restructure
