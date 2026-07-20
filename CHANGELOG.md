@@ -2,6 +2,49 @@
 
 ---
 
+## v0.7.0 — 2026-07-19
+
+### Deterministic write guarantee — plan.md
+
+Added `user/plan.md`: standing goals, pending commitments (with source and status), and a Flagged Gaps section for the capability checklist below. Closes the "vanished commitment" gap — Kate previously had no durable record of things she offered to do, so an offer made in one session could disappear if never followed up on. A new command-type Stop hook (`hooks/scripts/verify-session-writes.py`) blocks session end unless `session_context.md` and, if it exists, `plan.md` were actually re-written this turn — not just promised by the prompt hook. `plan.md` must be re-touched every session, even with no content change, so the review itself is guaranteed, not just the write when something happens to change.
+
+### Network ledger — network.md
+
+Added `user/network.md`: a contacts ledger (name, company, relationship, last touch, what's owed, next action), populated autonomously from transcripts, debriefs, and conversation. Distinct from `monitoring/watchlist.md`'s Key People (news/signal tracking vs. relationship upkeep). Overdue follow-ups (14+ days with something outstanding) surface at session start alongside `plan.md`'s pending commitments.
+
+### Capability checklist
+
+New `/kate-status` command shows what's set up vs. untapped (profile, deep archive, network ledger, monitoring, interview prep). Two of the five rows — deep archive and monitoring — also surface automatically at session start, but only once per gap (tracked via `plan.md`'s Flagged Gaps), not every session.
+
+### Deterministic protected-file gate
+
+The PreToolUse protected-file check (user_profile.md, targeted resumes, cover letters) moved from a prompt-type hook — which only asked the model to check for prior approval — to a command-type hook (`hooks/scripts/protect-files.py`) that blocks the write independently of model behavior.
+
+### HUD — rebuilt around a real, opt-in mechanism
+
+The HUD Protocol previously described behavior the code didn't implement (claimed to auto-load `kate_state.json`; the HTML never fetched it). Rebuilt: the HUD is now opt-in (asked once during onboarding, `HUD:` field in `user_profile.md`), fully local, and Kate builds a `?s=<url-encoded-base64-state>` link rather than claiming auto-load. Verified in-browser, not just read as code — this also caught a real bug (un-encoded `+` in the base64 payload silently becomes a space and corrupts the decode) that's now called out explicitly in the protocol instructions.
+
+Added a Networking zone to the HUD: contacts with an outstanding task by default, sorted by last touch, with a toggle to show every contact.
+
+### Source-material onboarding ask
+
+Onboarding now explicitly asks for the deep work archive (performance reviews, 360 feedback, PRDs, strategy docs), not just resume + LinkedIn. New material added later gets flagged once at the next session, using `session_context.md`'s existing `Last session` date rather than a separate tracking file.
+
+### What changed
+- `hooks/hooks.json` — protected-file check split into a command hook; Stop event gained a second command-hook write-verification gate
+- `hooks/scripts/protect-files.py`, `hooks/scripts/verify-session-writes.py` — new
+- `skills/kate-coach/references/templates/plan_template.md`, `network_template.md`, `kate_state_template.json` — new
+- `skills/kate-coach/references/templates/kate-hud.html` — Networking zone, `network_contacts` rendering
+- `skills/kate-coach/references/templates/user_profile_template.md` — `HUD:` preference field
+- `skills/kate-coach/SKILL.md` — Network Capture section, Steps 2B/2C/5C/5D, rewritten HUD Protocol, plan.md review in Session Close Protocol
+- `skills/kate-coach/references/flows.md` — onboarding Step 6B (HUD opt-in), source-material ask, Capability Checklist Flow, network ledger updates in Transcript Capture / Debrief flows
+- `skills/resume-tailor/SKILL.md` — restored missing age-discrimination rules (years-of-experience, graduation-date omission) and fixed malformed frontmatter
+- `commands/kate-status.md`, `skills/kate-status/SKILL.md` — new
+- `.mcp.json` — Granola MCP server restored
+- `.claude-plugin/plugin.json` — version 0.6.0 → 0.7.0
+
+---
+
 ## v0.6.0 — 2026-06-30
 
 ### Hooks — Programmatic enforcement of critical session behaviors
@@ -22,6 +65,10 @@ Fires before every Write or Edit tool call and enforces two rules:
 ### What changed
 - `hooks/hooks.json` — new file
 - `.claude-plugin/plugin.json` — version 0.5.0 → 0.6.0
+
+---
+
+# Kate — Changelog
 
 ---
 

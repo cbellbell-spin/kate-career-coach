@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0",
+  "last_updated": null,
+  "search_meta": {
+    "target_titles": [],
+    "candidate_market_fit": {
+      "tier": null,
+      "rationale": null,
+      "last_assessed": null
+    },
+    "search_started": null,
+    "target_close_by": null
+  },
+  "roles": [],
+  "network_contacts": [],
+  "session_focus": null
+}

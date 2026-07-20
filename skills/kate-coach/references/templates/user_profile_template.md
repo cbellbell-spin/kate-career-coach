@@ -49,6 +49,9 @@ MNOOKIN PROFILE:
 TRANSCRIPT METHOD:
 [Granola (automatic) / Manual paste / File upload]
 
+HUD:
+[Enabled / Disabled — optional local visual pipeline view, asked once during onboarding]
+
 ---
 
 ## Mnookin Profile (Complete)
