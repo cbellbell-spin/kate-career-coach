@@ -2,6 +2,24 @@
 
 ---
 
+## v0.7.1 — 2026-07-20
+
+### Fix: hooks.json failed Cowork's install approval UI
+
+v0.7.0 could not actually be installed — Cowork's approval UI rejected every hook with "Unknown hook field(s) ['prompt', 'type']". Two separate bugs, both pre-existing (the SessionStart issue dates back to v0.6.0, not introduced this release):
+
+1. **Wrong nesting.** Every hook handler (`type`, `command`/`prompt`) was written as a flat sibling of `matcher` on the outer array item. Per the actual schema (https://code.claude.com/docs/en/hooks), handlers must be nested inside an inner `"hooks": [...]` array on that item. All four hook entries (SessionStart, both Stop entries, both PreToolUse entries) were affected.
+2. **SessionStart doesn't support prompt-type hooks at all** — only `command` and `mcp_tool`. The SessionStart hook was built as `type: "prompt"` from the start (v0.6.0), which was never a valid combination. Converted to a command-type hook (`hooks/scripts/session-start-context.py`) that prints the same instructions to stdout — per the docs, plain stdout from a SessionStart command hook reaches Claude as context directly, no JSON needed.
+
+Note: both of the local plugin validator scripts (`~/.claude/scripts/validate-cowork-plugin.py`, `test_plugin.py`) checked for the old, wrong schema and reported v0.7.0's hooks.json as valid. They gave false confidence — the actual Cowork approval UI was the only thing that caught this. Those scripts need their own fix (tracked separately).
+
+### What changed
+- `hooks/hooks.json` — restructured every event to nest handlers in an inner `hooks` array; SessionStart converted from prompt-type to command-type
+- `hooks/scripts/session-start-context.py` — new
+- `.claude-plugin/plugin.json` — version 0.7.0 → 0.7.1
+
+---
+
 ## v0.7.0 — 2026-07-19
 
 ### Deterministic write guarantee — plan.md
