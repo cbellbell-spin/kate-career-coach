@@ -1,7 +1,19 @@
 #!/usr/bin/env python3
 """
 SessionStart command hook — injects Kate's session-initialization instructions
-as context at the start of every session.
+as context at the start of every session, but only in a project Kate has
+actually onboarded (a `user/` directory exists).
+
+Without this guard, the instructions were injected into every Cowork session
+where the plugin is enabled, regardless of project — including sessions with
+no connection to Kate at all. Kate is typically installed as a personal
+(cross-project) plugin, so "the plugin is enabled" and "this is a Kate
+coaching project" are not the same thing; only `user/`'s existence tells
+them apart. A first-time user's very first Kate session (no `user/` yet) is
+expected to be started explicitly by the user ("start a Kate session" per
+the getting-started guide), not auto-triggered by SessionStart — so staying
+silent when `user/` is absent is correct for both the bleed-over case and
+the legitimate first-run case.
 
 SessionStart does not support prompt-type hooks (per
 https://code.claude.com/docs/en/hooks: "SessionStart and Setup support
@@ -11,9 +23,12 @@ valid combination and is what the Cowork install approval UI rejected.
 
 Per the docs: "Since plain stdout already reaches Claude for this event, a
 hook that only loads context can print to stdout directly without building
-JSON." This script does exactly that — no JSON, no stdin parsing, just print
-the instructions and exit 0.
+JSON." This script does exactly that when the guard passes — no JSON, no
+extra parsing beyond reading `cwd`, just print the instructions and exit 0.
 """
+import json
+import os
+import sys
 
 INSTRUCTIONS = """A Kate session has started. Before responding to the user, run the full session initialization in order:
 
@@ -31,4 +46,23 @@ INSTRUCTIONS = """A Kate session has started. Before responding to the user, run
 
 7. Deliver warm re-entry (2-3 sentences max): what is in flight, anything time-sensitive, any open coaching priority. Then signal readiness."""
 
-print(INSTRUCTIONS)
+
+def main() -> int:
+    try:
+        payload = json.load(sys.stdin)
+    except (json.JSONDecodeError, ValueError):
+        # No parseable payload — can't determine cwd, so can't confirm this
+        # is a Kate project. Stay silent rather than risk bleed-over.
+        return 0
+
+    cwd = payload.get("cwd") or os.getcwd()
+
+    if not os.path.isdir(os.path.join(cwd, "user")):
+        return 0
+
+    print(INSTRUCTIONS)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

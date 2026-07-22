@@ -56,6 +56,15 @@ def main() -> int:
 
     cwd = payload.get("cwd") or os.getcwd()
 
+    # Only enforce on projects Kate has actually onboarded. `user/` is created
+    # during onboarding (kate-coach SKILL.md Step 1); its absence means this
+    # folder was never turned into a Kate coaching project — most commonly,
+    # this is the plugin's own source repo, or Claude Code being used for
+    # something unrelated with the plugin merely enabled. Blocking session
+    # end in that case is a false positive, not a guarantee worth enforcing.
+    if not os.path.isdir(os.path.join(cwd, "user")):
+        return 0
+
     problems = []
 
     for rel_path in REQUIRED_ALWAYS:

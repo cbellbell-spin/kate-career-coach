@@ -2,6 +2,82 @@
 
 ---
 
+## v0.7.5 — 2026-07-22
+
+### Root cause found: the *prompt*-type hooks were the bleed-over, not the command hooks
+
+The v0.7.4 diagnostic log settled it. Every `verify-session-writes.py` invocation in a non-Kate project (Coach Cadence / `adaptive-training-coach`) logged `NO_USER_DIR -> allow (guard passed)` — the *command* hooks' `user/`-existence guard was working correctly all along. The reported "hook still blocks a non-Kate session" symptom was never coming from the Python guards.
+
+The real culprit was the two `prompt`-type hooks (Stop + PreToolUse). A `prompt` hook is an instruction injected into the model's context, and its matcher can only gate on tool name, not on directory contents — so the "ignore if no `user/` dir" self-guard ran *inside the model's reasoning* on every edit and every session end in every project where the plugin is enabled. The guard "worked" only in that the model eventually concluded "not applicable," but the cost was derailing the host session: the diagnostic log captured the model in a Coach Cadence session spending its turns explaining Kate's hook and declining to write `user/` files instead of doing the actual work.
+
+### The fix
+
+Removed both `prompt`-type hooks. Nothing is lost — their guidance already lives in skill files that load *only* in Kate sessions:
+- Session-close writes → `skills/kate-coach/SKILL.md` (Session Close Protocol)
+- `fit_assessment` → `application_history.md` update + 3-role CMF pattern flag → `skills/kate-coach/references/flows.md`
+
+The two `command` hooks remain as the deterministic backstop and continue to no-op silently outside Kate projects. `verify-session-writes.py` still blocks Kate session-end if `session_context.md`/`plan.md` weren't written this session.
+
+### What changed
+- `hooks/hooks.json` — removed the Stop `prompt` hook and the PreToolUse `prompt` hook; kept SessionStart + both `command` hooks
+- `hooks/scripts/verify-session-writes.py` — removed the v0.7.4 `debug_log()` diagnostic (its job is done; it was writing to `/tmp` on every session globally)
+- `.claude-plugin/plugin.json` — version 0.7.4 → 0.7.5
+
+### Known non-issue
+`protect-files.py` still matches `Write|Edit` and so launches a fast Python process on every edit in every project, returning `exit 0` immediately when there's no `user/` dir. This is a platform limitation (matchers gate on tool name, not directory), not model-context pollution — the model never sees it unless it actually blocks a protected-file write. Left as-is intentionally.
+
+---
+
+## v0.7.4 — 2026-07-20 (diagnostic)
+
+### The v0.7.3 fix reportedly did not resolve the bleed-over issue
+
+After installing v0.7.3 in a genuinely fresh session, the Stop hook still blocked in a non-Kate project (no `user/` directory). Every standalone test of the `user/`-existence guard passes locally, so the discrepancy is between what the real Cowork runtime sends the hook and what was assumed based on the documented Claude Code CLI hook schema — Cowork may be a distinct product with its own hook execution behavior, not a byte-identical implementation of the public docs.
+
+Rather than guess again, `verify-session-writes.py` now writes a diagnostic line to `/tmp/kate-hook-debug.log` on every invocation: the raw stdin payload, `payload.get('cwd')`, `os.getcwd()`, the `CLAUDE_PROJECT_DIR` env var, which cwd the guard actually used, and the resulting decision. This turns the next test into real evidence instead of another pass/fail guess.
+
+**This is a temporary diagnostic release.** Once the real payload shape is confirmed, the guard will be corrected against actual data and the logging removed.
+
+### What changed
+- `hooks/scripts/verify-session-writes.py` — added `debug_log()`, called at every decision point
+- `.claude-plugin/plugin.json` — version 0.7.3 → 0.7.4
+
+---
+
+## v0.7.3 — 2026-07-20
+
+### Fix: hooks bled into non-Kate Cowork sessions
+
+v0.7.2 fixed the Stop *command* hook blocking non-Kate sessions, but it was only one of four hook handlers with the same underlying gap: Kate's hooks apply to every Cowork session where the plugin is enabled, not just sessions in a Kate coaching project, and three other handlers had no check for which kind of session they were in.
+
+- **SessionStart** (`session-start-context.py`) — printed the full 8-step Kate session-init sequence into every session's context unconditionally. Now checks for `user/` first and stays silent if it's absent. This also means SessionStart no longer auto-triggers onboarding in a brand-new, non-Kate project — onboarding still starts correctly when the user explicitly invokes Kate, per the getting-started guide's own instructed flow ("Type: start a Kate session").
+- **The Stop *prompt* hook** — instructed the model to write `session_context.md`/`coaching_notes.md`/`plan.md` on every session close, with no way to check the filesystem (prompt hooks are LLM-interpreted, not Python). Added an explicit guard as the first line of the prompt: check for `user/`, and do nothing if it's absent.
+- **`protect-files.py`** — blocked writes to any file matching `cover_letter*.md` or `targeted_resume*.docx` in any project, and `user/user_profile.md` specifically. Added the same `user/`-existence guard as the other command hooks.
+
+All four hook handlers (SessionStart, Stop ×2, PreToolUse ×2) now correctly no-op in a project Kate hasn't onboarded, verified against both Kate and non-Kate project scenarios.
+
+### What changed
+- `hooks/scripts/session-start-context.py` — added `user/` existence guard, reads `cwd` from stdin payload
+- `hooks/scripts/protect-files.py` — added `user/` existence guard
+- `hooks/hooks.json` — added guard clauses to both prompt-type hooks (Stop, PreToolUse)
+- `.claude-plugin/plugin.json` — version 0.7.2 → 0.7.3
+
+---
+
+## v0.7.2 — 2026-07-20
+
+### Fix: Stop hook blocked session end in non-Kate projects
+
+`verify-session-writes.py` (the Stop-hook write guarantee added in v0.7.0) required `user/session_context.md` to exist and be fresh unconditionally, on every session where the plugin was enabled — including projects that were never onboarded as a Kate coaching folder, like kate-career-coach's own source repo. Any session without a `user/` directory got permanently blocked from ending.
+
+Fix: the hook now checks for `user/` first and exits 0 immediately if it's absent — the write guarantee only applies once a project has actually been onboarded (which is what creates `user/` in the first place). Verified against all four cases: no `user/` (now allows), `user/` present but nothing written (still blocks), fresh write (allows), stale `plan.md` (still blocks).
+
+### What changed
+- `hooks/scripts/verify-session-writes.py` — added the `user/` existence guard
+- `.claude-plugin/plugin.json` — version 0.7.1 → 0.7.2
+
+---
+
 ## v0.7.1 — 2026-07-20
 
 ### Fix: hooks.json failed Cowork's install approval UI

@@ -98,6 +98,16 @@ def main() -> int:
         # Can't parse the hook payload — fail open rather than block on a plugin bug.
         return 0
 
+    cwd = payload.get("cwd") or os.getcwd()
+
+    # Only enforce in a project Kate has actually onboarded. Without this,
+    # the protected-path patterns below (cover_letter*.md, targeted_resume*.docx)
+    # can collide with unrelated files in projects that have nothing to do
+    # with Kate, since the plugin's hooks apply to every session where it's
+    # enabled, not just Kate coaching sessions.
+    if not os.path.isdir(os.path.join(cwd, "user")):
+        return 0
+
     tool_input = payload.get("tool_input", {}) or {}
     file_path = tool_input.get("file_path", "") or ""
 
