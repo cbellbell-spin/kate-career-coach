@@ -78,3 +78,4 @@ jobs:
         with:
           files: kate-career-coach-*.zip
           generate_release_notes: true
+          token: ${{ secrets.RELEASE_PAT }}
