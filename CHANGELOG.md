@@ -2,6 +2,23 @@
 
 ---
 
+## v0.7.6 — 2026-08-16
+
+### The v0.7.5 release zip was broken: it contained a nested zip
+
+A prior `kate-career-coach-0.7.1.zip` build artifact had been committed into the repo tree. `release.yml` builds the release archive with `zip -r . -x ".git/*" "node_modules/*"`, which has no `*.zip` exclusion, so it swept the stale tracked zip into every subsequent release — including v0.7.5. Cowork's plugin uploader correctly rejects zips containing nested zips, so v0.7.5 could not be installed at all.
+
+The root cause (the tracked zip file) was fixed in the repo on 2026-07-22 — untracked and gitignored via `*.zip` — but no new release was cut afterward, so the broken v0.7.5 asset stayed live on the download page for over three weeks.
+
+### What changed
+- Untracked `kate-career-coach-0.7.1.zip`; added `*.zip` to `.gitignore` (carried over from the unreleased fix)
+- `.claude-plugin/plugin.json` — version 0.7.5 → 0.7.6
+- No functional plugin changes — this release exists solely to publish a clean, installable zip
+
+Install: Settings → Plugins → Install from file.
+
+---
+
 ## v0.7.5 — 2026-07-22
 
 ### Root cause found: the *prompt*-type hooks were the bleed-over, not the command hooks
