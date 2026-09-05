@@ -6,76 +6,48 @@ on:
       - 'v*'
 
 jobs:
-  validate:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Validate plugin structure
-        run: |
-          # Check required directories and files exist
-          for path in ".claude-plugin/plugin.json" "commands" "skills"; do
-            if [ ! -e "$path" ]; then
-              echo "ERROR: Missing required path: $path"
-              exit 1
-            fi
-          done
-
-          # Validate plugin.json
-          python3 -c "
-          import json, sys
-          with open('.claude-plugin/plugin.json') as f:
-              p = json.load(f)
-          for field in ['name', 'version', 'description']:
-              if field not in p:
-                  print(f'ERROR: plugin.json missing field: {field}')
-                  sys.exit(1)
-          name = p['name']
-          if not all(c.islower() or c.isdigit() or c in '-_' for c in name):
-              print(f'ERROR: plugin name \"{name}\" is not kebab-case')
-              sys.exit(1)
-          print(f'plugin.json valid: {name} v{p[\"version\"]}')
-          "
-
-          # Validate skill directories each have SKILL.md
-          for skill in skills/*; do
-            if [ -d "$skill" ] && [ ! -f "$skill/SKILL.md" ]; then
-              echo "ERROR: $skill/ is missing SKILL.md"
-              exit 1
-            fi
-          done
-
-          # Validate command files have description: and nothing forbidden
-          for cmd in commands/*.md; do
-            if ! grep -q '^description:' "$cmd"; then
-              echo "ERROR: $cmd missing frontmatter description"
-              exit 1
-            fi
-            if grep -qE '^(name:|tools:|allowed-tools:)' "$cmd"; then
-              echo "ERROR: $cmd contains forbidden field (name/tools/allowed-tools)"
-              exit 1
-            fi
-          done
-
-          echo "Structure validation passed"
-
   build:
     runs-on: ubuntu-latest
-    needs: validate
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build plugin zip
+      # The canonical validators live in cowork-plugin-tooling so every plugin
+      # repo checks the same rules. The previous inline validation here was a
+      # hand-rolled subset and missed real defects — notably the hooks.json
+      # flat-schema and SessionStart prompt-type failures, both of which Cowork
+      # rejects on upload.
+      - name: Fetch shared tooling
+        uses: actions/checkout@v4
+        with:
+          repository: cbellbell-spin/cowork-plugin-tooling
+          path: .tooling
+          token: ${{ secrets.RELEASE_PAT }}
+
+      - name: Check tag matches plugin.json version
         run: |
-          VERSION=${GITHUB_REF#refs/tags/v}
-          zip -r ./kate-career-coach-$VERSION.zip . -x ".git/*" "node_modules/*"
-          echo "Built: kate-career-coach-$VERSION.zip"
+          TAG_VERSION=${GITHUB_REF#refs/tags/v}
+          MANIFEST_VERSION=$(python3 -c "import json;print(json.load(open('.claude-plugin/plugin.json'))['version'])")
+          if [ "$TAG_VERSION" != "$MANIFEST_VERSION" ]; then
+            echo "ERROR: tag v$TAG_VERSION does not match plugin.json version $MANIFEST_VERSION"
+            exit 1
+          fi
+          echo "Version check passed: $MANIFEST_VERSION"
+
+      - name: Build plugin zip
+        run: .tooling/build-plugin.sh
+
+      - name: Validate
+        run: |
+          ZIP=$(ls -t *.zip | head -1)
+          echo "Validating $ZIP"
+          python3 .tooling/validate-cowork-plugin.py "$ZIP"
+          python3 .tooling/test_plugin.py "$ZIP"
 
       - name: Upload to release
         uses: softprops/action-gh-release@v2
         with:
-          files: kate-career-coach-*.zip
+          files: '*.zip'
           generate_release_notes: true
           token: ${{ secrets.RELEASE_PAT }}
