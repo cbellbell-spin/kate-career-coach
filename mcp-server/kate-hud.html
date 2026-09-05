@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kate HUD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f0f11;
+    --surface: #16161a;
+    --surface-2: #1e1e24;
+    --border: #2a2a32;
+    --border-subtle: #1e1e24;
+    --text-primary: #e8e8f0;
+    --text-secondary: #8888a0;
+    --text-muted: #55556a;
+    --accent: #7c6af7;
+    --accent-glow: rgba(124,106,247,0.15);
+    --strong: #4ade80;
+    --positioning: #fb923c;
+    --uphill: #f87171;
+    --stage-applied: #60a5fa;
+    --stage-screening: #a78bfa;
+    --stage-interviewing: #fb923c;
+    --stage-final: #f59e0b;
+    --stage-closed: #f87171;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    line-height: 1.4;
+    overflow: hidden;
+  }
+
+  .hud { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+  /* Header */
+  .header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 12px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+  }
+  .header-left {
+    font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700;
+    letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent);
+  }
+  .header-right { display: flex; align-items: center; gap: 6px; font-size: 10px; color: var(--text-muted); }
+  .pulse-dot {
+    width: 6px; height: 6px; border-radius: 50%; background: var(--strong);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* Pipeline bar */
+  .pipeline-bar { padding: 8px 12px 6px; border-bottom: 1px solid var(--border-subtle); flex-shrink: 0; }
+  .pipeline-bar-inner { display: flex; align-items: center; gap: 8px; }
+  .pipeline-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-muted); flex-shrink: 0; }
+  .pipeline-segments { display: flex; gap: 3px; flex: 1; overflow: hidden; }
+  .pipeline-segment { height: 6px; border-radius: 2px; flex: 1; min-width: 20px; max-width: 80px; }
+  .pipeline-meta { font-size: 9px; color: var(--text-muted); flex-shrink: 0; white-space: nowrap; }
+
+  /* Zones */
+  .zones { flex: 1; overflow-y: auto; padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 12px; }
+  .zones::-webkit-scrollbar { width: 4px; }
+  .zones::-webkit-scrollbar-track { background: transparent; }
+  .zones::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  .zone { display: flex; flex-direction: column; gap: 6px; }
+  .zone-label {
+    font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em;
+    color: var(--text-muted); display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+  }
+  .zone-label::after { content: ''; flex: 1; height: 1px; background: var(--border-subtle); }
+
+  /* Role cards */
+  .role-cards { display: flex; flex-direction: column; gap: 5px; }
+  .role-card {
+    background: var(--surface); border: 1px solid var(--border-subtle);
+    border-left: 3px solid transparent; border-radius: 4px;
+    padding: 7px 10px; display: flex; align-items: flex-start; gap: 10px;
+    cursor: default; transition: background 0.15s, border-color 0.15s;
+    animation: fadeUp 0.3s ease-out both;
+  }
+  .role-card:hover { background: var(--surface-2); border-color: var(--border); }
+  .role-card.active { border-left-color: var(--accent); background: var(--accent-glow); }
+  .role-card-main { flex: 1; min-width: 0; }
+  .role-company { font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .role-title { font-size: 10px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
+  .role-card-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
+  .stage-pill { font-size: 9px; font-weight: 500; padding: 2px 6px; border-radius: 3px; white-space: nowrap; letter-spacing: 0.04em; color: #fff; }
+  .stage-pill.Exploring    { background: #55556a; }
+  .stage-pill.Applied      { background: var(--stage-applied); }
+  .stage-pill.Screening   { background: var(--stage-screening); }
+  .stage-pill.Interviewing { background: var(--stage-interviewing); }
+  .stage-pill.Final_Round { background: var(--stage-final); }
+  .stage-pill.Offer       { background: #4ade80; }
+  .stage-pill.Closed_Lost { background: var(--stage-closed); }
+  .stage-pill.Withdrawn   { background: #55556a; }
+  .excitement-dots { display: flex; gap: 3px; }
+  .excitement-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--border); }
+  .excitement-dot.filled { background: var(--accent); }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Open items */
+  .open-items { display: flex; flex-direction: column; gap: 4px; }
+  .item-row {
+    display: grid; grid-template-columns: 44px 1fr auto; gap: 8px;
+    align-items: center; padding: 6px 8px; border-radius: 4px;
+    border: 1px solid transparent; background: var(--surface);
+    animation: fadeUp 0.3s ease-out both;
+  }
+  .item-row.overdue { border-color: rgba(248,113,113,0.3); background: rgba(248,113,113,0.05); }
+  .item-row.today   { border-color: rgba(245,158,11,0.3); background: rgba(245,158,11,0.05); }
+  .item-row.soon    { border-color: rgba(251,146,60,0.2); }
+  .item-date { display: flex; flex-direction: column; align-items: center; line-height: 1; }
+  .item-date-day { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: var(--text-primary); }
+  .item-date-month { font-size: 8px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 1px; }
+  .item-row.overdue .item-date-day { color: var(--uphill); }
+  .item-row.today   .item-date-day { color: var(--stage-final); }
+  .item-center { min-width: 0; }
+  .item-desc { font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .item-company { font-size: 9px; color: var(--text-muted); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .item-type-chip { font-size: 8px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; padding: 2px 5px; border-radius: 3px; white-space: nowrap; flex-shrink: 0; }
+  .item-type-chip.prep       { background: rgba(124,106,247,0.2); color: var(--accent); }
+  .item-type-chip.interview  { background: rgba(74,222,128,0.15); color: #4ade80; }
+  .item-type-chip.follow_up  { background: rgba(96,165,250,0.15); color: var(--stage-applied); }
+  .item-type-chip.networking { background: rgba(167,139,250,0.15); color: var(--stage-screening); }
+  .item-type-chip.decision   { background: rgba(245,158,11,0.15); color: var(--stage-final); }
+  .item-type-chip.research   { background: rgba(136,136,160,0.15); color: var(--text-secondary); }
+  .item-type-chip.other      { background: rgba(85,85,106,0.2); color: var(--text-muted); }
+
+  /* Session focus */
+  .session-focus { border: 1px solid var(--accent); border-radius: 6px; overflow: hidden; position: relative; background: var(--surface); }
+  .sf-accent-line { height: 2px; background: linear-gradient(90deg, transparent, var(--accent), transparent); }
+  .sf-body { padding: 10px 12px; }
+  .sf-label { display: flex; align-items: center; gap: 6px; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent); margin-bottom: 6px; }
+  .sf-pulse { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); animation: pulse 1.5s ease-in-out infinite; }
+  .sf-mode { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 3px; }
+  .sf-sub { font-size: 10px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 10px; }
+  .sf-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+  .chip { font-family: 'DM Mono', monospace; font-size: 9px; font-weight: 500; padding: 4px 8px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px; color: var(--text-secondary); cursor: pointer; transition: color 0.15s, border-color 0.15s, background 0.15s; user-select: none; }
+  .chip:hover { color: var(--accent); border-color: var(--accent); background: var(--accent-glow); }
+  .empty-state { font-size: 10px; color: var(--text-muted); text-align: center; padding: 16px 0; font-style: italic; }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="hud" id="hud">
+  <div class="header">
+    <div class="header-left">KATE / SEARCH HUD</div>
+    <div class="header-right">
+      <div class="pulse-dot"></div>
+      <span>Session active &middot; <span id="session-date"></span></span>
+    </div>
+  </div>
+  <div class="pipeline-bar">
+    <div class="pipeline-bar-inner">
+      <div class="pipeline-label">Pipeline</div>
+      <div class="pipeline-segments" id="pipeline-segments"></div>
+      <div class="pipeline-meta" id="pipeline-meta"></div>
+    </div>
+  </div>
+  <div class="zones">
+    <div class="zone">
+      <div class="zone-label">Active Roles</div>
+      <div class="role-cards" id="role-cards"><div class="empty-state" id="roles-empty">No active roles in pipeline.</div></div>
+    </div>
+    <div class="zone">
+      <div class="zone-label">Open Items</div>
+      <div class="open-items" id="open-items"><div class="empty-state" id="items-empty">No open action items.</div></div>
+    </div>
+    <div class="zone">
+      <div class="zone-label">Session Focus</div>
+      <div id="session-focus-container"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var STAGE_ORDER = ['Offer','Final Round','Interviewing','Screening','Applied','Exploring'];
+  var TERMINAL_STAGES = ['Closed/Lost','Withdrawn'];
+  var TYPE_COLORS = {
+    prep:'prep', interview:'interview', follow_up:'follow_up',
+    networking:'networking', decision:'decision', research:'research', other:'other'
+  };
+  var stageColorMap = {
+    'Exploring':   '#55556a',
+    'Applied':     '#60a5fa',
+    'Screening':   '#a78bfa',
+    'Interviewing':'#fb923c',
+    'Final Round': '#f59e0b',
+    'Offer':       '#4ade80',
+    'Closed/Lost': '#f87171',
+    'Withdrawn':   '#55556a'
+  };
+
+  var kateState = null;
+  var sessionFocus = null;
+
+  // ── Safe text setting ─────────────────────────────────────────
+  function txt(el, str) {
+    el.textContent = (str == null) ? '' : String(str);
+  }
+
+  function mkEl(tag, cls) {
+    var el = document.createElement(tag);
+    if (cls) el.className = cls;
+    return el;
+  }
+
+  // ── Date helpers ──────────────────────────────────────────────
+  function fmtDate(iso) {
+    if (!iso) return null;
+    var d = new Date(iso);
+    var now = new Date();
+    var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    var target = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    var diffDays = Math.round((target - today) / 86400000);
+    return { day: d.getDate(), month: d.toLocaleString('en-US',{month:'short'}).toUpperCase(), diffDays: diffDays };
+  }
+
+  function stageColor(stage) { return stageColorMap[stage] || '#55556a'; }
+
+  function stagePillClass(stage) {
+    return stage.replace(/[\/ ]/g, '_');
+  }
+
+  function cmpRoleStage(a, b) {
+    var ai = STAGE_ORDER.indexOf(a.stage);
+    var bi = STAGE_ORDER.indexOf(b.stage);
+    if (ai === -1) ai = 99;
+    if (bi === -1) bi = 99;
+    return ai - bi;
+  }
+
+  // ── Active role resolution ────────────────────────────────────
+  function getActiveRole() {
+    if (!kateState) return null;
+    if (sessionFocus && sessionFocus.role_id) {
+      var r = kateState.roles;
+      for (var i = 0; i < r.length; i++) { if (r[i].id === sessionFocus.role_id) return r[i]; }
+    }
+    var items = kateState.action_items || [];
+    var openItems = [];
+    for (var j = 0; j < items.length; j++) {
+      var a = items[j];
+      if (a.status !== 'complete' && a.status !== 'cancelled' && a.role_id) openItems.push(a);
+    }
+    if (!openItems.length) return null;
+    openItems.sort(function(x, y) { return new Date(x.due_date) - new Date(y.due_date); });
+    var roles = kateState.roles || [];
+    for (var k = 0; k < roles.length; k++) { if (roles[k].id === openItems[0].role_id) return roles[k]; }
+    return null;
+  }
+
+  function chipPrompt(chipKey) {
+    var role = getActiveRole();
+    var company = role ? role.company : '';
+    var title = role ? role.title : '';
+    var atRole = company ? ' for ' + company + (title ? ' / ' + title : '') : ' the active role';
+    switch (chipKey) {
+      case 'prep':      return "Let's do interview prep for " + (company || 'the active role') + (title ? ' / ' + title : '');
+      case 'vision':    return "Help me write my 30/60/180 day vision narrative for " + (company || 'the active role') + (title ? ' / ' + title : '');
+      case 'questions': return "Generate likely interview questions for " + (company || 'the active role') + (title ? ' / ' + title : '') + " based on the JD";
+      case 'reach':     return "Help me draft outreach for " + (company || 'the active role') + (title ? ' / ' + title : '');
+      case 'pipeline':  return "Give me a full pipeline status update and flag anything that needs attention";
+      default: return chipKey;
+    }
+  }
+
+  function sendPrompt(text) {
+    console.log('[kate-hud] sendPrompt:', text);
+    try {
+      if (typeof ext !== 'undefined' && ext.apps && ext.apps.sendPrompt) {
+        ext.apps.sendPrompt(text);
+        return;
+      }
+    } catch (e) { /* SDK not available */ }
+    if (window.parent) {
+      window.parent.postMessage({ type: 'mcp:sendPrompt', text: text }, '*');
+    }
+  }
+
+  // ── Rendering ─────────────────────────────────────────────────
+  function renderAll() {
+    if (!kateState) return;
+    renderPipelineBar();
+    renderRoleCards();
+    renderOpenItems();
+    renderSessionFocus();
+    var dateEl = document.getElementById('session-date');
+    var now = new Date();
+    dateEl.textContent = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  function renderPipelineBar() {
+    var container = document.getElementById('pipeline-segments');
+    var meta = document.getElementById('pipeline-meta');
+    container.innerHTML = '';
+    var activeRoles = [];
+    var roles = kateState.roles || [];
+    for (var i = 0; i < roles.length; i++) {
+      if (TERMINAL_STAGES.indexOf(roles[i].stage) === -1) activeRoles.push(roles[i]);
+    }
+    var hotCount = 0;
+    for (var j = 0; j < activeRoles.length; j++) {
+      var s = activeRoles[j].stage;
+      if (s === 'Interviewing' || s === 'Final Round' || s === 'Offer') hotCount++;
+    }
+    for (var k = 0; k < activeRoles.length; k++) {
+      var seg = mkEl('div', 'pipeline-segment');
+      seg.style.background = stageColor(activeRoles[k].stage);
+      seg.title = activeRoles[k].company + ' — ' + activeRoles[k].stage;
+      container.appendChild(seg);
+    }
+    meta.textContent = activeRoles.length + ' roles · ' + hotCount + ' hot';
+  }
+
+  function renderRoleCards() {
+    var container = document.getElementById('role-cards');
+    var empty = document.getElementById('roles-empty');
+    var activeRoles = [];
+    var allRoles = kateState.roles || [];
+    for (var i = 0; i < allRoles.length; i++) {
+      if (TERMINAL_STAGES.indexOf(allRoles[i].stage) === -1) activeRoles.push(allRoles[i]);
+    }
+    activeRoles.sort(cmpRoleStage);
+    if (!activeRoles.length) {
+      empty.classList.remove('hidden');
+      return;
+    }
+    empty.classList.add('hidden');
+    container.innerHTML = '';
+    for (var ri = 0; ri < activeRoles.length; ri++) {
+      var role = activeRoles[ri];
+      var card = mkEl('div', 'role-card');
+      if (sessionFocus && sessionFocus.role_id === role.id) card.classList.add('active');
+      var fitTier = role.fit && role.fit.tier ? role.fit.tier : '';
+      if (fitTier === 'Strong Fit') card.style.borderLeftColor = '#4ade80';
+      else if (fitTier === 'Positioning Play') card.style.borderLeftColor = '#fb923c';
+      else if (fitTier === 'Uphill Battle') card.style.borderLeftColor = '#f87171';
+      card.style.animationDelay = (ri * 0.05) + 's';
+
+      var main = mkEl('div', 'role-card-main');
+      var companyEl = mkEl('div', 'role-company');
+      txt(companyEl, role.company);
+      var titleEl = mkEl('div', 'role-title');
+      txt(titleEl, role.title);
+      main.appendChild(companyEl);
+      main.appendChild(titleEl);
+
+      var right = mkEl('div', 'role-card-right');
+      var pill = mkEl('div', 'stage-pill ' + stagePillClass(role.stage));
+      txt(pill, role.stage);
+      right.appendChild(pill);
+
+      var dots = mkEl('div', 'excitement-dots');
+      var lvl = role.excitement_level || 1;
+      for (var d = 1; d <= 5; d++) {
+        var dot = mkEl('div', 'excitement-dot' + (d <= lvl ? ' filled' : ''));
+        dots.appendChild(dot);
+      }
+      right.appendChild(dots);
+
+      card.appendChild(main);
+      card.appendChild(right);
+      container.appendChild(card);
+    }
+  }
+
+  function renderOpenItems() {
+    var container = document.getElementById('open-items');
+    var empty = document.getElementById('items-empty');
+    var items = kateState.action_items || [];
+    var openItems = [];
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].status !== 'complete' && items[i].status !== 'cancelled') openItems.push(items[i]);
+    }
+    openItems.sort(function(a, b) { return new Date(a.due_date || '9999') - new Date(b.due_date || '9999'); });
+    if (!openItems.length) {
+      empty.classList.remove('hidden');
+      return;
+    }
+    empty.classList.add('hidden');
+    container.innerHTML = '';
+    for (var ji = 0; ji < openItems.length; ji++) {
+      var item = openItems[ji];
+      var dateInfo = fmtDate(item.due_date);
+      var diff = dateInfo ? dateInfo.diffDays : 0;
+      var urgencyClass = '';
+      if (diff < 0) urgencyClass = 'overdue';
+      else if (diff === 0) urgencyClass = 'today';
+      else if (diff <= 3) urgencyClass = 'soon';
+
+      var roleCompany = '';
+      if (item.role_id) {
+        var roles = kateState.roles || [];
+        for (var r = 0; r < roles.length; r++) {
+          if (roles[r].id === item.role_id) { roleCompany = roles[r].company; break; }
+        }
+      }
+      if (!roleCompany && item.type === 'networking') roleCompany = 'Networking';
+
+      var typeChipClass = TYPE_COLORS[item.type] || 'other';
+
+      var row = mkEl('div', 'item-row ' + urgencyClass);
+      row.style.animationDelay = (ji * 0.04) + 's';
+
+      var dateCell = mkEl('div', 'item-date');
+      var dayEl = mkEl('div', 'item-date-day');
+      txt(dayEl, dateInfo ? dateInfo.day : '—');
+      var monthEl = mkEl('div', 'item-date-month');
+      txt(monthEl, dateInfo ? dateInfo.month : '');
+      dateCell.appendChild(dayEl);
+      dateCell.appendChild(monthEl);
+
+      var center = mkEl('div', 'item-center');
+      var descEl = mkEl('div', 'item-desc');
+      txt(descEl, item.description);
+      var companyEl2 = mkEl('div', 'item-company');
+      txt(companyEl2, roleCompany);
+      center.appendChild(descEl);
+      center.appendChild(companyEl2);
+
+      var chipEl = mkEl('div', 'item-type-chip ' + typeChipClass);
+      txt(chipEl, item.type.replace('_', ' '));
+
+      row.appendChild(dateCell);
+      row.appendChild(center);
+      row.appendChild(chipEl);
+      container.appendChild(row);
+    }
+  }
+
+  function renderSessionFocus() {
+    var container = document.getElementById('session-focus-container');
+    if (!sessionFocus) {
+      container.innerHTML = '';
+      var sf = mkEl('div', 'session-focus');
+      var line = mkEl('div', 'sf-accent-line');
+      var body = mkEl('div', 'sf-body');
+      var label = mkEl('div', 'sf-label');
+      var pulse = mkEl('div', 'sf-pulse');
+      var labelTxt = document.createTextNode('Session Focus');
+      label.appendChild(pulse);
+      label.appendChild(labelTxt);
+      var modeEl = mkEl('div', 'sf-mode');
+      txt(modeEl, 'No active session focus');
+      var subEl = mkEl('div', 'sf-sub');
+      txt(subEl, 'Kate will update this when you start a workflow.');
+      body.appendChild(label);
+      body.appendChild(modeEl);
+      body.appendChild(subEl);
+      sf.appendChild(line);
+      sf.appendChild(body);
+      container.appendChild(sf);
+      return;
+    }
+
+    container.innerHTML = '';
+    var sfWrap = mkEl('div', 'session-focus');
+    var accentLine = mkEl('div', 'sf-accent-line');
+    var sfBody = mkEl('div', 'sf-body');
+    var sfLabel = mkEl('div', 'sf-label');
+    var sfPulse = mkEl('div', 'sf-pulse');
+    var sfLabelText = document.createTextNode('Session Focus');
+    sfLabel.appendChild(sfPulse);
+    sfLabel.appendChild(sfLabelText);
+
+    var modeText = sessionFocus.mode || 'General';
+    if (sessionFocus.role_id && kateState) {
+      var allRoles = kateState.roles || [];
+      for (var ri = 0; ri < allRoles.length; ri++) {
+        if (allRoles[ri].id === sessionFocus.role_id) {
+          modeText += ' · ' + allRoles[ri].company;
+          break;
+        }
+      }
+    }
+    var sfModeEl = mkEl('div', 'sf-mode');
+    txt(sfModeEl, modeText);
+
+    sfBody.appendChild(sfLabel);
+    sfBody.appendChild(sfModeEl);
+
+    if (sessionFocus.summary) {
+      var subEl = mkEl('div', 'sf-sub');
+      txt(subEl, sessionFocus.summary);
+      sfBody.appendChild(subEl);
+    }
+
+    var chips = sessionFocus.active_chips || [];
+    if (chips.length) {
+      var chipsRow = mkEl('div', 'sf-chips');
+      for (var ci = 0; ci < chips.length; ci++) {
+        var chipKey = chips[ci];
+        var chipEl = mkEl('div', 'chip');
+        txt(chipEl, '/' + chipKey);
+        chipEl.dataset.chip = chipKey;
+        chipEl.title = chipPrompt(chipKey);
+        (function(key) {
+          chipEl.addEventListener('click', function() { sendPrompt(chipPrompt(key)); });
+        })(chipKey);
+        chipsRow.appendChild(chipEl);
+      }
+      sfBody.appendChild(chipsRow);
+    }
+
+    sfWrap.appendChild(accentLine);
+    sfWrap.appendChild(sfBody);
+    container.appendChild(sfWrap);
+  }
+
+  // ── Message handling ──────────────────────────────────────────
+  window.addEventListener('message', function(e) {
+    try {
+      var msg = e.data;
+      if (!msg || typeof msg !== 'object') return;
+      if (msg.type === 'mcp:toolResult' && msg.state) {
+        kateState = typeof msg.state === 'string' ? JSON.parse(msg.state) : msg.state;
+        sessionFocus = kateState.session_focus || null;
+        renderAll();
+      } else if (msg.type === 'mcp:statePatch' && msg.patch) {
+        if (!kateState) kateState = {};
+        var patch = msg.patch;
+        for (var key in patch) {
+          kateState[key] = patch[key];
+        }
+        if (msg.sessionFocus !== undefined) sessionFocus = msg.sessionFocus;
+        renderAll();
+      } else if (msg.type === 'mcp:sessionFocus' && msg.sessionFocus !== undefined) {
+        sessionFocus = msg.sessionFocus;
+        renderSessionFocus();
+      }
+    } catch (err) {
+      console.error('[kate-hud] message error:', err);
+    }
+  });
+
+  // ── Init ─────────────────────────────────────────────────────
+  window.addEventListener('load', function() {
+    var stored = null;
+    try { stored = sessionStorage.getItem('kate_hud_state'); } catch (e) { /* noop */ }
+    if (stored) {
+      try { kateState = JSON.parse(stored); sessionFocus = kateState.session_focus || null; renderAll(); } catch (e) { /* ignore */ }
+    }
+  });
+})();
+</script>
+</body>
+</html>

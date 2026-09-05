@@ -1,0 +1,401 @@
+{
+  "schema_version": "1.0",
+  "last_updated": "2026-05-29T21:56:17.413Z",
+  "search_meta": {
+    "target_titles": [
+      "VP Product",
+      "Senior Director Product",
+      "Chief Product Officer"
+    ],
+    "candidate_market_fit": {
+      "tier": "Positioning Play",
+      "rationale": "Background maps well to growth-stage product leadership but requires deliberate framing to differentiate from commodity VP candidates. Domain expertise in data infrastructure is a genuine differentiator.",
+      "last_assessed": "2026-05-15"
+    },
+    "search_started": "2026-04-01",
+    "target_close_by": "2026-08-31"
+  },
+  "roles": [
+    {
+      "id": "role_vantarix",
+      "company": "Vantarix",
+      "title": "VP of Product",
+      "stage": "Interviewing",
+      "stage_history": [
+        {
+          "stage": "Exploring",
+          "entered": "2026-04-10"
+        },
+        {
+          "stage": "Applied",
+          "entered": "2026-04-12"
+        },
+        {
+          "stage": "Screening",
+          "entered": "2026-04-18"
+        },
+        {
+          "stage": "Interviewing",
+          "entered": "2026-05-01"
+        }
+      ],
+      "fit": {
+        "tier": "Strong Fit",
+        "cmf_score": 82,
+        "kate_rationale": "Data infrastructure background maps directly to their core platform challenge. Strong positioning play."
+      },
+      "timeline": {
+        "next_event": {
+          "type": "interview",
+          "description": "Final round with CPO",
+          "date": "2026-06-02",
+          "prep_status": "in_progress"
+        },
+        "events": [
+          {
+            "type": "phone_screen",
+            "date": "2026-04-18",
+            "description": "Recruiter screen"
+          },
+          {
+            "type": "interview",
+            "date": "2026-04-28",
+            "description": "Hiring manager screen"
+          },
+          {
+            "type": "interview",
+            "date": "2026-05-15",
+            "description": "Panel with product leads"
+          }
+        ]
+      },
+      "contacts": [
+        "contact_sarah_chen"
+      ],
+      "action_items": [
+        "action_vantarix_prep"
+      ],
+      "excitement_level": 4
+    },
+    {
+      "id": "role_meridian",
+      "company": "Meridian Health",
+      "title": "Senior Director, Product",
+      "stage": "Screening",
+      "stage_history": [
+        {
+          "stage": "Applied",
+          "entered": "2026-05-10"
+        },
+        {
+          "stage": "Screening",
+          "entered": "2026-05-20"
+        }
+      ],
+      "fit": {
+        "tier": "Positioning Play",
+        "cmf_score": 68,
+        "kate_rationale": "Healthcare domain gap is bridgeable with right narrative. Technical depth is a genuine asset in this market."
+      },
+      "timeline": {
+        "next_event": {
+          "type": "follow_up",
+          "description": "Recruiter check-in",
+          "date": "2026-05-31",
+          "prep_status": "not_started"
+        },
+        "events": []
+      },
+      "contacts": [
+        "contact_rebecca_wu"
+      ],
+      "action_items": [
+        "action_meridian_research"
+      ],
+      "excitement_level": 3
+    },
+    {
+      "id": "role_solstice",
+      "company": "Solstice AI",
+      "title": "Head of Product",
+      "stage": "Final Round",
+      "stage_history": [
+        {
+          "stage": "Exploring",
+          "entered": "2026-04-05"
+        },
+        {
+          "stage": "Applied",
+          "entered": "2026-04-08"
+        },
+        {
+          "stage": "Screening",
+          "entered": "2026-04-15"
+        },
+        {
+          "stage": "Interviewing",
+          "entered": "2026-04-25"
+        },
+        {
+          "stage": "Final Round",
+          "entered": "2026-05-12"
+        }
+      ],
+      "fit": {
+        "tier": "Strong Fit",
+        "cmf_score": 88,
+        "kate_rationale": "AI/ML product experience directly maps to their growth vector. CPO-level scope in a smaller org."
+      },
+      "timeline": {
+        "next_event": {
+          "type": "decision",
+          "description": "Expected offer timeline",
+          "date": "2026-06-05",
+          "prep_status": "not_started"
+        },
+        "events": [
+          {
+            "type": "interview",
+            "date": "2026-05-22",
+            "description": "Co-founder meet"
+          }
+        ]
+      },
+      "contacts": [
+        "contact_david_park"
+      ],
+      "action_items": [
+        "action_solstice_followup"
+      ],
+      "excitement_level": 5
+    },
+    {
+      "id": "role_aurora",
+      "company": "Aurora Labs",
+      "title": "VP Product",
+      "stage": "Offer",
+      "stage_history": [
+        {
+          "stage": "Exploring",
+          "entered": "2026-03-20"
+        },
+        {
+          "stage": "Applied",
+          "entered": "2026-03-22"
+        },
+        {
+          "stage": "Screening",
+          "entered": "2026-04-01"
+        },
+        {
+          "stage": "Interviewing",
+          "entered": "2026-04-10"
+        },
+        {
+          "stage": "Final Round",
+          "entered": "2026-04-25"
+        },
+        {
+          "stage": "Offer",
+          "entered": "2026-05-20"
+        }
+      ],
+      "fit": {
+        "tier": "Strong Fit",
+        "cmf_score": 91,
+        "kate_rationale": "Best alignment across all dimensions. Data platform scale experience directly fills their gap."
+      },
+      "timeline": {
+        "next_event": {
+          "type": "offer_deadline",
+          "description": "Decision deadline",
+          "date": "2026-06-03",
+          "prep_status": "not_started"
+        },
+        "events": []
+      },
+      "contacts": [
+        "contact_james_morrison"
+      ],
+      "action_items": [
+        "action_aurora_decision"
+      ],
+      "excitement_level": 4
+    },
+    {
+      "id": "role_ironwood",
+      "company": "Ironwood Systems",
+      "title": "Chief Product Officer",
+      "stage": "Exploring",
+      "stage_history": [
+        {
+          "stage": "Exploring",
+          "entered": "2026-05-25"
+        }
+      ],
+      "fit": {
+        "tier": "Uphill Battle",
+        "cmf_score": 45,
+        "kate_rationale": "CPO role at PE-backed growth co is a step up in scope. Revenue ownership expectation is a stretch given background."
+      },
+      "timeline": {
+        "next_event": null,
+        "events": []
+      },
+      "contacts": [],
+      "action_items": [
+        "action_ironwood_eval"
+      ],
+      "excitement_level": 2
+    }
+  ],
+  "contacts": [
+    {
+      "id": "contact_sarah_chen",
+      "role_ids": [
+        "role_vantarix"
+      ],
+      "name": "Sarah Chen",
+      "title": "Head of Talent",
+      "company": "Vantarix",
+      "relationship_type": "recruiter",
+      "warmth": "warm",
+      "last_contact": "2026-05-27",
+      "outreach": []
+    },
+    {
+      "id": "contact_rebecca_wu",
+      "role_ids": [
+        "role_meridian"
+      ],
+      "name": "Rebecca Wu",
+      "title": "VP Engineering",
+      "company": "Meridian Health",
+      "relationship_type": "hiring_manager",
+      "warmth": "cold",
+      "last_contact": "2026-05-20",
+      "outreach": []
+    },
+    {
+      "id": "contact_david_park",
+      "role_ids": [
+        "role_solstice"
+      ],
+      "name": "David Park",
+      "title": "Co-founder & CEO",
+      "company": "Solstice AI",
+      "relationship_type": "champion",
+      "warmth": "hot",
+      "last_contact": "2026-05-22",
+      "outreach": []
+    },
+    {
+      "id": "contact_james_morrison",
+      "role_ids": [
+        "role_aurora"
+      ],
+      "name": "James Morrison",
+      "title": "CEO",
+      "company": "Aurora Labs",
+      "relationship_type": "hiring_manager",
+      "warmth": "hot",
+      "last_contact": "2026-05-25",
+      "outreach": []
+    }
+  ],
+  "outreach": [
+    {
+      "id": "outreach_1",
+      "contact_id": "contact_david_park",
+      "role_id": "role_solstice",
+      "type": "email",
+      "direction": "outbound",
+      "date": "2026-05-23",
+      "status": "replied",
+      "thread_summary": "Confirmed final round scheduling, expressed strong interest"
+    },
+    {
+      "id": "outreach_2",
+      "contact_id": "contact_james_morrison",
+      "role_id": "role_aurora",
+      "type": "email",
+      "direction": "inbound",
+      "date": "2026-05-20",
+      "status": "replied",
+      "thread_summary": "Offer discussion, scheduling follow-up"
+    }
+  ],
+  "action_items": [
+    {
+      "id": "action_vantarix_prep",
+      "role_id": "role_vantarix",
+      "type": "prep",
+      "description": "Final round prep — CPO interview, prepare 30/60/180 vision narrative",
+      "due_date": "2026-06-01",
+      "priority": "high",
+      "status": "in_progress",
+      "created": "2026-05-28"
+    },
+    {
+      "id": "action_meridian_research",
+      "role_id": "role_meridian",
+      "type": "research",
+      "description": "Deep research on Meridian Health's data strategy and competitive position",
+      "due_date": "2026-05-30",
+      "priority": "medium",
+      "status": "open",
+      "created": "2026-05-20"
+    },
+    {
+      "id": "action_solstice_followup",
+      "role_id": "role_solstice",
+      "type": "follow_up",
+      "description": "Send follow-up note to David Park after final round",
+      "due_date": "2026-05-25",
+      "priority": "high",
+      "status": "complete",
+      "created": "2026-05-22"
+    },
+    {
+      "id": "action_aurora_decision",
+      "role_id": "role_aurora",
+      "type": "decision",
+      "description": "Evaluate Aurora Labs offer — comp review, reference checks, decision by deadline",
+      "due_date": "2026-06-02",
+      "priority": "high",
+      "status": "open",
+      "created": "2026-05-20"
+    },
+    {
+      "id": "action_ironwood_eval",
+      "role_id": "role_ironwood",
+      "type": "research",
+      "description": "Initial assessment — Is Ironwood CPO role worth pursuing given scope gap?",
+      "due_date": "2026-05-31",
+      "priority": "low",
+      "status": "open",
+      "created": "2026-05-25"
+    },
+    {
+      "id": "action_network",
+      "role_id": null,
+      "type": "networking",
+      "description": "Reach out to Chris Hoffman (ex-CPO at Dataform) for informational conversation",
+      "due_date": "2026-06-05",
+      "priority": "medium",
+      "status": "open",
+      "created": "2026-05-28"
+    }
+  ],
+  "session_focus": {
+    "mode": "Interview Prep",
+    "role_id": "role_vantarix",
+    "summary": "Preparing for final round CPO interview at Vantarix on June 2",
+    "active_chips": [
+      "prep",
+      "vision",
+      "questions",
+      "pipeline"
+    ]
+  }
+}
