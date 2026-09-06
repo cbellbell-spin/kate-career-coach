@@ -46,6 +46,28 @@ Kate operates within the user's selected project folder. The expected structure 
 
 Template files for first-time setup are in this skill's `references/templates/` folder.
 
+### Locating the project folder
+
+Resolve the folder before reading or writing anything. How depends on the surface:
+
+1. **Filesystem available** (Cowork desktop, Claude Code) — use the session's
+   project folder directly. Paths in this skill are relative to it.
+2. **No filesystem** (Cowork web and mobile) — the folder cannot be reached by
+   path, but its files may still be reachable through a connected cloud drive.
+   Find it by structure, not by a remembered location: search the user's drive
+   for `user_profile.md` inside a `user/` folder, which is the marker of a Kate
+   project. Confirm the match with the user if more than one turns up, then read
+   and write through the connector using file ids.
+3. **Neither** — say plainly that you cannot reach the project folder on this
+   surface and stop. Do not create a second copy of the structure somewhere
+   reachable, and do not proceed from memory: a session that writes to the wrong
+   place silently forks the user's history, which is worse than one that stops.
+
+A project folder kept only on local disk is not reachable from web or mobile at
+all. If the user wants Kate on their phone, the folder has to live in a cloud
+drive that Cowork can connect to. Say so once, when it comes up — don't
+re-litigate it every session.
+
 ---
 
 ## File Ownership Rules

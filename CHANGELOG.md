@@ -2,6 +2,30 @@
 
 ---
 
+## v0.7.8 — 2026-09-05
+
+### Kate could not find her own files on web or mobile
+
+Cowork now runs on desktop, web, and mobile. Kate's only instruction about where her files live was "Kate operates within the user's selected project folder" — which quietly assumes a filesystem. On desktop that resolves, because the session has a working directory. On web and mobile there is no working directory, and the skill said nothing about what to do instead.
+
+The failure mode is not a clean error. Given no instruction, the model improvises: it may guess that it should search a connected drive, guess which folder is the right one, or guess the structure — and a wrong guess writes coaching history into the wrong place, silently forking it. Having the files reachable in a cloud drive was never the missing piece. The missing piece was telling Kate how to reach them when there is no path to follow.
+
+### The fix
+
+The umbrella skill now resolves the project folder explicitly, by surface. With a filesystem, nothing changes. Without one, Kate finds the folder *by structure* — searching the user's connected drive for `user_profile.md` inside a `user/` folder, which is what makes a folder a Kate project — and works through the connector by file id. If the folder cannot be reached at all, she says so and stops rather than creating a second copy somewhere reachable.
+
+Discovery is by structure rather than by a stored folder location on purpose: it works for any user with any drive layout, and Kate ships nothing about anyone else's setup.
+
+One honest limitation, stated once in the skill so it doesn't get re-litigated every session: a project folder kept only on local disk is not reachable from web or mobile by any means. Using Kate on a phone requires the folder to live in a cloud drive Cowork can connect to.
+
+### What changed
+- `skills/kate-coach/SKILL.md` — added "Locating the project folder" to Project Folder Structure
+- `.claude-plugin/plugin.json` — version 0.7.7 → 0.7.8
+- No change to coaching behaviour, flows, templates, or the HUD
+
+Install: Settings → Plugins → Install from file.
+
+---
 ## v0.7.7 — 2026-09-05
 
 ### The release zip was shipping Kate's Vercel backend to every user
