@@ -34,6 +34,11 @@ jobs:
           fi
           echo "Version check passed: $MANIFEST_VERSION"
 
+      # Dev symlinks into ~/projects/shared/ don't resolve on a runner. Without
+      # this step zip silently omits them and ships an incomplete plugin.
+      - name: Inline shared references
+        run: .tooling/sync-shared-refs.sh "$GITHUB_WORKSPACE/.."
+
       - name: Build plugin zip
         run: .tooling/build-plugin.sh
 
