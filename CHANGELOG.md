@@ -2,6 +2,31 @@
 
 ---
 
+## v0.7.7 — 2026-09-05
+
+### The release zip was shipping Kate's Vercel backend to every user
+
+Kate's repo holds two different things: the plugin, and the deploy infrastructure behind it — the Vercel serverless functions at `api/mcp/`, a local MCP server, and the built HUD under `public/`. Until recently that backend was untracked, so it never reached a release. Bringing it under version control (it existed on exactly one disk, which was its own risk) had a side effect nobody would notice from the diff: `build-plugin.sh` archives the whole working tree, so every one of those files started landing in the downloadable zip.
+
+This is the same shape as the v0.7.6 bug. There the build swept in a stale nested zip; here it swept in the backend. In both cases the archive step had no opinion about what belongs in a plugin versus what merely lives in the repo.
+
+Nothing was exposed that shouldn't be — the auth token had already been moved to an environment variable — but end users were downloading server code they cannot run and should not have to reason about. The zip was 110 KB where 82 KB is the plugin.
+
+The clearest symptom was three copies of `kate-hud.html` in one archive, at 28,915 / 25,103 / 24,556 bytes, all diverged. Only the first is real: `skills/kate-coach/references/templates/kate-hud.html` is the template the onboarding flow actually copies into a user's project. The other two are stale build outputs that had drifted from it.
+
+### The fix
+
+`build-plugin.sh` now reads an optional `.plugin-ignore` from the repo root — one glob per line — and excludes those paths from the archive. Kate declares its deploy infrastructure there. The mechanism is general rather than a Kate-specific carve-out in the shared build script, because any plugin that ships from the same repo as its backend has this problem.
+
+### What changed
+- Added `.plugin-ignore` excluding `api/`, `mcp-server/`, `public/`, `package.json`, `package-lock.json`, `docs/`, and `kate_state.example.json`
+- Release zip 110,135 → 81,938 bytes
+- `.claude-plugin/plugin.json` — version 0.7.6 → 0.7.7
+- No functional plugin changes. Skills, commands, hooks, and the HUD template are byte-identical to v0.7.6
+
+Install: Settings → Plugins → Install from file.
+
+---
 ## v0.7.6 — 2026-08-16
 
 ### The v0.7.5 release zip was broken: it contained a nested zip

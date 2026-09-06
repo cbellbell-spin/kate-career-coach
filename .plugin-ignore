@@ -1,0 +1,15 @@
+# Deploy infrastructure — this repo also holds Kate's Vercel backend and local
+# MCP server. None of it belongs in the plugin zip end users download.
+api/*
+mcp-server/*
+public/*
+package.json
+package-lock.json
+
+# The HUD template the skill actually copies lives at
+# skills/kate-coach/references/templates/kate-hud.html. The copies under
+# public/ and mcp-server/ are stale deploy artifacts and have diverged from it.
+
+# Internal planning docs
+docs/*
+kate_state.example.json
