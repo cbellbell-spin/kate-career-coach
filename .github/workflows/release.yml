@@ -23,7 +23,6 @@ jobs:
         with:
           repository: cbellbell-spin/cowork-plugin-tooling
           path: .tooling
-          token: ${{ secrets.RELEASE_PAT }}
 
       - name: Check tag matches plugin.json version
         run: |
